@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="src/assets/TuneStream Logo.png" alt="TuneStream logo" align="center" height="96" />
+<img src="src/assets/TuneStream Logo.png" alt="TuneStream logo" align="center" height="120" />
 
 # TuneStream
 
@@ -11,10 +11,11 @@
 [![React](https://img.shields.io/badge/React-18-149eca?style=flat-square&logo=react&logoColor=white)](https://react.dev/)
 [![Redux Toolkit](https://img.shields.io/badge/Redux_Toolkit-1.8-764abc?style=flat-square&logo=redux&logoColor=white)](https://redux-toolkit.js.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-38bdf8?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Deploy to GitHub Pages](https://img.shields.io/badge/deploy-github_pages-222222?style=flat-square&logo=github)](https://pages.github.com/)
 
-Discover tracks by genre, browse top charts and artists, search for songs, and play previews — all wrapped in a Spotify-inspired dark UI.
+Discover tracks by genre, browse top charts and artists, search for songs, and play 30-second previews — all wrapped in a Spotify-inspired dark UI.
 
-[Live demo](https://aviteshmurmu19.github.io/TuneStream/) · [Features](#features) · [Getting started](#getting-started) · [Project structure](#project-structure) · [Tech stack](#tech-stack)
+[Live demo](https://aviteshmurmu19.github.io/TuneStream/) · [Features](#features) · [Getting started](#getting-started) · [Project structure](#project-structure) · [Deployment](#deployment) · [FAQ](#faq)
 
 </div>
 
@@ -27,10 +28,10 @@ Discover tracks by genre, browse top charts and artists, search for songs, and p
 - **Top Charts & Top Artists** — see what's trending, with a horizontally scrollable artist carousel powered by [Swiper](https://swiperjs.com/).
 - **Search** — find songs by title or artist via the search bar.
 - **Song details** — open a track to see artwork, artist link, lyrics when available, and a list of related songs.
-- **Sticky audio player** — play 30-second previews, pause/skip, and watch the active track surface in the bottom player.
+- **Sticky audio player** — play 30-second previews sourced from Apple Music, with play/pause, seek, and volume controls in a fixed bottom bar.
 - **Responsive layout** — sidebar navigation on desktop, slide-in menu on mobile.
-- **Offline-friendly data layer** — when the live API is unavailable, queries resolve from a local JSON snapshot, so navigation never breaks.
-- **Deployed to GitHub Pages** — the `vite` build is configured with `base: '/TuneStream/'` and `react-router` runs with the matching `basename`, so direct links to sub-routes work.
+- **Offline-friendly data layer** — when the live API is unavailable or rate-limited, queries resolve from a local JSON snapshot so navigation never breaks.
+- **One-command deploy** — `npm run deploy` builds and ships the site to GitHub Pages.
 
 ## Screenshots
 
@@ -89,32 +90,67 @@ npm run preview
 
 The production bundle is emitted to `dist/`.
 
+### Available scripts
+
+| Script | What it does |
+| --- | --- |
+| `npm run dev` | Start the Vite dev server with HMR |
+| `npm run build` | Produce an optimized production build in `dist/` |
+| `npm run preview` | Serve the production build locally |
+| `npm run deploy` | Build, then publish `dist/` to the `gh-pages` branch — see [Deployment](#deployment) |
+
 ## Project structure
 
 ```
-src/
-├── App.jsx              # Top-level layout: sidebar, routes, music player
-├── index.jsx            # React entry — wraps the app in <Provider> + <Router>
-├── index.css            # Tailwind layers and custom keyframes
-├── assets/              # Logo, favicon, loader, genre constants
-├── components/          # Reusable UI (SongCard, Sidebar, MusicPlayer, ...)
-│   └── MusicPlayer/     # Sticky bottom player + controls
-├── pages/               # Route-level views
-│   ├── Discover.jsx     # Genre picker + song grid (home)
-│   ├── TopCharts.jsx    # Full top-charts list
-│   ├── TopArtists.jsx   # Top artists grid
-│   ├── AroundYou.jsx    # Country-aware charts
-│   ├── Search.jsx       # Search results
-│   ├── SongDetails.jsx  # Single track + related songs
-│   └── ArtistDetails.jsx
-└── redux/
-    ├── features/
-    │   └── playerSlice.js   # Active song, isPlaying, queue
-    └── services/
-        ├── shazamCore.js    # RTK Query API (live + fallback)
-        ├── normalize.js     # Maps the Apple Music JSON shape to the Shazam-shaped UI fields
-        ├── topChartsData.json
-        └── getSongsByGenre.json
+TuneStream/
+├── scripts/
+│   └── deploy-gh-pages.mjs   # One-command GitHub Pages publisher
+├── src/
+│   ├── App.jsx               # Top-level layout: sidebar, routes, music player
+│   ├── index.jsx             # React entry — wraps the app in <Provider> + <Router basename>
+│   ├── index.css             # Tailwind layers and custom keyframes
+│   ├── assets/
+│   │   ├── TuneStream Logo.png
+│   │   ├── logo.svg          # Legacy logo, kept for reference
+│   │   ├── loader.svg
+│   │   ├── favicon.ico
+│   │   ├── constants.js
+│   │   └── index.js          # Barrel re-export of the bundled assets
+│   ├── components/           # Reusable UI
+│   │   ├── Sidebar.jsx       # Desktop + mobile navigation
+│   │   ├── TopPlay.jsx       # Right rail: top charts + top artists carousel
+│   │   ├── SongCard.jsx
+│   │   ├── SongBar.jsx
+│   │   ├── ArtistCard.jsx
+│   │   ├── DetailsHeader.jsx
+│   │   ├── RelatedSongs.jsx
+│   │   ├── Searchbar.jsx
+│   │   ├── PlayPause.jsx
+│   │   ├── Loader.jsx
+│   │   ├── Error.jsx
+│   │   └── MusicPlayer/      # Sticky bottom player (Track, Controls, Seekbar, VolumeBar)
+│   ├── pages/                # Route-level views
+│   │   ├── Discover.jsx      # Genre picker + song grid (home)
+│   │   ├── TopCharts.jsx
+│   │   ├── TopArtists.jsx
+│   │   ├── AroundYou.jsx     # Country-aware charts
+│   │   ├── Search.jsx
+│   │   ├── SongDetails.jsx
+│   │   └── ArtistDetails.jsx
+│   └── redux/
+│       ├── features/
+│       │   └── playerSlice.js    # Active song, isPlaying, queue, volume
+│       └── services/
+│           ├── shazamCore.js     # RTK Query API (live + local fallback)
+│           ├── normalize.js      # Maps Apple Music JSON to the UI's Shazam shape
+│           ├── topChartsData.json
+│           └── getSongsByGenre.json
+├── .env.example
+├── .eslintrc.js
+├── tailwind.config.cjs
+├── postcss.config.js
+├── vite.config.js            # base: '/TuneStream/' for GitHub Pages hosting
+└── package.json
 ```
 
 ## Tech stack
@@ -126,51 +162,58 @@ src/
 - **[Tailwind CSS 3](https://tailwindcss.com/)** — utility-first styling
 - **[Swiper](https://swiperjs.com/)** — touch slider for the Top Artists carousel
 - **[react-icons](https://react-icons.github.io/react-icons/)** — icon set
-- **[Shazam Core](https://rapidapi.com/apidojo/api/shazam-core/) via RapidAPI** — music data source (with a bundled JSON fallback)
+- **[Shazam Core](https://rapidapi.com/apidojo/api/shazam-core/) via RapidAPI** — music metadata (with a bundled Apple Music JSON fallback for offline / rate-limited scenarios)
 
 ## Deployment
 
-TuneStream is set up to deploy to **GitHub Pages** from the `gh-pages` branch. A one-liner script does the whole thing: it builds the app, copies the freshly built `dist/` into a temporary worktree, commits it, and force-pushes the `gh-pages` branch.
+TuneStream is set up to deploy to **GitHub Pages** from the `gh-pages` branch with a single command:
 
 ```bash
 npm run deploy
 ```
 
-Under the hood this runs `predeploy` (which calls `npm run build`) and then `node scripts/deploy-gh-pages.mjs`, which:
+Under the hood this runs:
 
-1. Verifies `dist/` exists.
-2. Fetches the latest `origin/gh-pages`.
-3. Creates a throwaway worktree, replaces its contents with the contents of `dist/`.
-4. Commits and `git push --force` to `origin/gh-pages`.
-5. Removes the worktree.
+1. `predeploy` → `npm run build` (produces `dist/`).
+2. `node scripts/deploy-gh-pages.mjs`, which:
+   1. Verifies `dist/` exists.
+   2. Fetches the latest `origin/gh-pages`.
+   3. Creates a throwaway worktree, replaces its contents with the contents of `dist/`.
+   4. Commits and `git push --force` to `origin/gh-pages`.
+   5. Removes the worktree and prints the live URL.
 
 > [!IMPORTANT]
 > The `gh-pages` branch must already exist on the remote before the first deploy. Create it once (an empty initial commit is fine) before running the script, or push a single empty commit: `git push origin main:gh-pages --force` after enabling Pages on the branch in the repo's settings.
-> 
+>
 > Configure **Settings → Pages → Build from branch → `gh-pages` / `(root)`** on GitHub so the live URL becomes `https://<user>.github.io/TuneStream/`.
 
 > [!TIP]
-> The `vite.config.js` `base: '/TuneStream/'` setting and the matching `<Router basename={import.meta.env.BASE_URL}>` keep asset URLs and client-side routes in sync when the app is hosted under a project page (e.g. `https://<user>.github.io/TuneStream/`).
+> The `vite.config.js` `base: '/TuneStream/'` setting and the matching `<Router basename={import.meta.env.BASE_URL}>` keep asset URLs and client-side routes in sync when the app is hosted under a project page (e.g. `https://<user>.github.io/TuneStream/`). If you fork the project, update both to your repository name.
 
 ## FAQ
 
 <details>
 <summary><b>The site loads but the sidebar links send me to the wrong place.</b></summary>
-Make sure your `Router` is configured with the same basename as `vite.config.js` `base`. Both are wired up here, so if you fork the project, keep them in sync with your repository name.
+Make sure your <code>Router</code> is configured with the same basename as <code>vite.config.js</code> <code>base</code>. Both are wired up here, so if you fork the project, keep them in sync with your repository name.
 </details>
 
 <details>
 <summary><b>Song details show "Sorry, No lyrics found!"</b></summary>
-The bundled offline snapshot doesn't include lyrics. If you wire up a real Shazam Core API key in `.env`, tracks that return lyrics from the upstream API will display them.
+The bundled offline snapshot doesn't include lyrics. If you wire up a real Shazam Core API key in <code>.env</code>, tracks that return lyrics from the upstream API will display them.
 </details>
 
 <details>
 <summary><b>I'm hitting 429 / 403 on the Shazam endpoints.</b></summary>
-The public Shazam Core tier is heavily rate-limited. The app automatically falls back to the bundled JSON dataset for song details and related tracks, so navigation stays smooth.
+The public Shazam Core tier is heavily rate-limited. The app automatically falls back to the bundled Apple Music JSON dataset for song details and related tracks, so navigation stays smooth.
+</details>
+
+<details>
+<summary><b>Audio doesn't play.</b></summary>
+Audio previews stream from <code>audio-ssl.itunes.apple.com</code>, which serves 30-second m4a clips for every track. Browsers require a user gesture (click) before audio can start, so click the play button on a song first. If you still see no audio, check the browser console for CORS or mixed-content errors — the live site runs over HTTPS, so the Apple URLs should load fine.
 </details>
 
 ## Acknowledgements
 
 - Inspired by the JavaScript Mastery [Lyriks](https://github.com/adrianhajdin/project_music_player) project.
-- Track artwork and metadata courtesy of the Apple Music JSON snapshot used as a fallback dataset.
+- Track artwork, metadata, and 30-second previews courtesy of the Apple Music JSON snapshot used as a fallback dataset.
 - Built with the amazing open-source web tooling listed in [Tech stack](#tech-stack).
