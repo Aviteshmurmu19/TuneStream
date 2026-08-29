@@ -3,6 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 // Local JSON Response
 import topChartsData from "./topChartsData.json";
 import getSongsByGenreData from "./getSongsByGenre.json";
+import { normalizeSongs } from "./normalize";
 
 export const shazamCoreApi = createApi({
   reducerPath: "shazamCoreApi",
@@ -18,19 +19,10 @@ export const shazamCoreApi = createApi({
   }),
   endpoints: (builder) => ({
     getTopCharts: builder.query({
-      queryFn: () => {
-        return { data: topChartsData };
-        // query: (countryCode) => ({
-        // url: "/charts/world",
-        // params: { country_code: countryCode },
-      },
+      queryFn: () => ({ data: normalizeSongs(topChartsData) }),
     }),
     getSongsByGenre: builder.query({
-      query: () => {
-        return { data: getSongsByGenreData };
-        // query: ({ genre, countryCode }) =>
-        //   `v1/charts/genre-world?genre_code=${genre}&country_code=${countryCode}`,
-      },
+      queryFn: () => ({ data: normalizeSongs(getSongsByGenreData) }),
     }),
     getSongsByCountry: builder.query({
       query: (countryCode) => `v1/charts/country?country_code=${countryCode}`,
