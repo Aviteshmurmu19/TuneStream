@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="src/assets/logo.svg" alt="TuneStream logo" align="center" height="96" />
+<img src="src/assets/TuneStream Logo.png" alt="TuneStream logo" align="center" height="96" />
 
 # TuneStream
 
