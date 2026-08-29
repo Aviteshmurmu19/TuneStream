@@ -130,16 +130,24 @@ src/
 
 ## Deployment
 
-TuneStream is set up to deploy to **GitHub Pages** from the `gh-pages` branch.
+TuneStream is set up to deploy to **GitHub Pages** from the `gh-pages` branch. A one-liner script does the whole thing: it builds the app, copies the freshly built `dist/` into a temporary worktree, commits it, and force-pushes the `gh-pages` branch.
 
 ```bash
-npm run build
-git add -f dist
-git commit -m "Deploy"
-git push origin main
-# Force-push dist to the gh-pages branch
-git push origin <main>:gh-pages --force
+npm run deploy
 ```
+
+Under the hood this runs `predeploy` (which calls `npm run build`) and then `node scripts/deploy-gh-pages.mjs`, which:
+
+1. Verifies `dist/` exists.
+2. Fetches the latest `origin/gh-pages`.
+3. Creates a throwaway worktree, replaces its contents with the contents of `dist/`.
+4. Commits and `git push --force` to `origin/gh-pages`.
+5. Removes the worktree.
+
+> [!IMPORTANT]
+> The `gh-pages` branch must already exist on the remote before the first deploy. Create it once (an empty initial commit is fine) before running the script, or push a single empty commit: `git push origin main:gh-pages --force` after enabling Pages on the branch in the repo's settings.
+> 
+> Configure **Settings → Pages → Build from branch → `gh-pages` / `(root)`** on GitHub so the live URL becomes `https://<user>.github.io/TuneStream/`.
 
 > [!TIP]
 > The `vite.config.js` `base: '/TuneStream/'` setting and the matching `<Router basename={import.meta.env.BASE_URL}>` keep asset URLs and client-side routes in sync when the app is hosted under a project page (e.g. `https://<user>.github.io/TuneStream/`).
